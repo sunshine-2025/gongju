@@ -172,10 +172,61 @@ input[type="range"] {
 }
 
 .info-area {
-    margin: 10px 0;
-    padding: 10px;
+    margin: 15px 0;
+    padding: 15px;
     background: #f5f5f5;
     border-radius: 5px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.info-area .file-name {
+    color: #2196F3;
+    font-weight: bold;
+}
+
+.info-area .page-count {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.split-mode {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 5px;
+}
+
+.split-mode h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.split-mode label {
+    display: block;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.hint {
+    font-size: 14px;
+    color: #666;
+    margin: 10px 0;
+}
+
+.range-input {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.range-input:focus {
+    border-color: #2196F3;
+    outline: none;
+    box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
 }
 
 .action-button {
@@ -196,36 +247,4 @@ input[type="range"] {
 .progress-area {
     margin-top: 10px;
     text-align: center;
-}
-
-.split-mode {
-    margin: 15px 0;
-    padding: 10px;
-    background: #f5f5f5;
-    border-radius: 5px;
-}
-
-.split-mode label {
-    margin-right: 20px;
-    cursor: pointer;
-}
-
-.hint {
-    font-size: 14px;
-    color: #666;
-    margin: 5px 0;
-}
-
-.range-input {
-    width: 100%;
-    padding: 8px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.range-input:focus {
-    border-color: #2196F3;
-    outline: none;
 } 
