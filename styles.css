@@ -133,4 +133,67 @@ input[type="range"] {
     .preview-container {
         grid-template-columns: 1fr;
     }
+}
+
+.pdf-tools {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.tool-section {
+    margin-bottom: 20px;
+}
+
+.upload-area {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.upload-area input[type="file"] {
+    display: none;
+}
+
+.upload-label {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.upload-label:hover {
+    background: #45a049;
+}
+
+.info-area {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 5px;
+}
+
+.action-button {
+    padding: 10px 20px;
+    background: #0071e3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.action-button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+.progress-area {
+    margin-top: 10px;
+    text-align: center;
 } 
