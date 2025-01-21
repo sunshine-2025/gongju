@@ -196,4 +196,36 @@ input[type="range"] {
 .progress-area {
     margin-top: 10px;
     text-align: center;
+}
+
+.split-mode {
+    margin: 15px 0;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 5px;
+}
+
+.split-mode label {
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.hint {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.range-input {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.range-input:focus {
+    border-color: #2196F3;
+    outline: none;
 } 
