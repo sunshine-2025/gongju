@@ -92,6 +92,19 @@ const splitButton = document.getElementById('splitPdfBtn');
 const pdfInfo = document.getElementById('pdfInfo');
 const splitProgress = document.getElementById('splitProgress');
 
+// 添加拆分模式切换处理
+const splitModeInputs = document.getElementsByName('splitMode');
+const customSplitOptions = document.getElementById('customSplitOptions');
+const pageRangesInput = document.getElementById('pageRanges');
+
+// 监听拆分模式变化
+splitModeInputs.forEach(input => {
+    input.addEventListener('change', function() {
+        customSplitOptions.style.display = 
+            this.value === 'custom' ? 'block' : 'none';
+    });
+});
+
 // 监听文件选择
 pdfInput.addEventListener('change', async function(e) {
     const file = e.target.files[0];
@@ -110,34 +123,77 @@ pdfInput.addEventListener('change', async function(e) {
     }
 });
 
-// PDF 拆分功能
-async function splitPDF(file) {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
-    const pageCount = pdfDoc.getPageCount();
-
-    splitProgress.textContent = '开始拆分...';
-
-    for (let i = 0; i < pageCount; i++) {
-        splitProgress.textContent = `正在处理第 ${i + 1}/${pageCount} 页...`;
+// 解析页面范围
+function parsePageRanges(rangeStr, totalPages) {
+    const ranges = [];
+    const parts = rangeStr.split(',').map(part => part.trim());
+    
+    for (const part of parts) {
+        const [start, end] = part.split('-').map(num => parseInt(num));
         
-        const newPdf = await PDFLib.PDFDocument.create();
-        const [copiedPage] = await newPdf.copyPages(pdfDoc, [i]);
-        newPdf.addPage(copiedPage);
+        if (isNaN(start) || isNaN(end) || start < 1 || end > totalPages || start > end) {
+            throw new Error('页面范围格式无效');
+        }
         
-        const pdfBytes = await newPdf.save();
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `第${i + 1}页.pdf`;
-        link.click();
-        
-        URL.revokeObjectURL(url);
+        ranges.push({start: start - 1, end: end - 1}); // 转换为0基索引
     }
+    
+    return ranges;
+}
 
-    splitProgress.textContent = '拆分完成！';
+// 修改 PDF 拆分功能
+async function splitPDF(file) {
+    try {
+        splitProgress.textContent = '开始拆分...';
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+        const pageCount = pdfDoc.getPageCount();
+        
+        const splitMode = document.querySelector('input[name="splitMode"]:checked').value;
+        let ranges = [];
+        
+        if (splitMode === 'single') {
+            // 单页模式：每页生成一个文件
+            ranges = Array.from({length: pageCount}, (_, i) => ({start: i, end: i}));
+        } else {
+            // 自定义模式：解析用户输入的范围
+            try {
+                ranges = parsePageRanges(pageRangesInput.value, pageCount);
+            } catch (error) {
+                splitProgress.textContent = error.message;
+                return;
+            }
+        }
+        
+        // 处理每个范围
+        for (let i = 0; i < ranges.length; i++) {
+            const range = ranges[i];
+            splitProgress.textContent = `正在处理第 ${range.start + 1}-${range.end + 1} 页...`;
+            
+            const newPdf = await PDFLib.PDFDocument.create();
+            const pages = await newPdf.copyPages(pdfDoc, 
+                Array.from({length: range.end - range.start + 1}, (_, i) => range.start + i)
+            );
+            
+            pages.forEach(page => newPdf.addPage(page));
+            
+            const pdfBytes = await newPdf.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `第${range.start + 1}-${range.end + 1}页.pdf`;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+        }
+        
+        splitProgress.textContent = '拆分完成！';
+    } catch (error) {
+        console.error('PDF 处理错误:', error);
+        splitProgress.textContent = '处理PDF时出错，请重试';
+    }
 }
 
 // 拆分按钮点击事件
