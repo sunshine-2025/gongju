@@ -101,7 +101,6 @@ pdfInput.addEventListener('change', async function(e) {
         try {
             // 显示加载提示
             pdfInfo.innerHTML = '<p>正在读取PDF文件信息...</p>';
-            splitOptions.style.display = 'none';
             
             const arrayBuffer = await file.arrayBuffer();
             const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
@@ -114,14 +113,14 @@ pdfInput.addEventListener('change', async function(e) {
                 <p>文件大小：${(file.size / (1024 * 1024)).toFixed(2)} MB</p>
             `;
             
-            // 显示拆分选项
-            splitOptions.style.display = 'block';
+            // 启用拆分按钮
+            splitButton.disabled = false;
             splitProgress.textContent = '';
             
         } catch (error) {
             console.error('PDF 加载错误:', error);
             pdfInfo.innerHTML = '<p style="color: #f44336;">无法读取PDF文件，请确保文件格式正确</p>';
-            splitOptions.style.display = 'none';
+            splitButton.disabled = true;
         }
     }
 });
@@ -136,32 +135,36 @@ document.getElementsByName('splitMode').forEach(input => {
 
 // PDF 拆分功能
 async function splitPDF(file) {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
-    const pageCount = pdfDoc.getPageCount();
+    try {
+        splitProgress.textContent = '开始拆分...';
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+        const pageCount = pdfDoc.getPageCount();
 
-    splitProgress.textContent = '开始拆分...';
+        for (let i = 0; i < pageCount; i++) {
+            splitProgress.textContent = `正在处理第 ${i + 1}/${pageCount} 页...`;
+            
+            const newPdf = await PDFLib.PDFDocument.create();
+            const [copiedPage] = await newPdf.copyPages(pdfDoc, [i]);
+            newPdf.addPage(copiedPage);
+            
+            const pdfBytes = await newPdf.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `第${i + 1}页.pdf`;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+        }
 
-    for (let i = 0; i < pageCount; i++) {
-        splitProgress.textContent = `正在处理第 ${i + 1}/${pageCount} 页...`;
-        
-        const newPdf = await PDFLib.PDFDocument.create();
-        const [copiedPage] = await newPdf.copyPages(pdfDoc, [i]);
-        newPdf.addPage(copiedPage);
-        
-        const pdfBytes = await newPdf.save();
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `第${i + 1}页.pdf`;
-        link.click();
-        
-        URL.revokeObjectURL(url);
+        splitProgress.textContent = '拆分完成！';
+    } catch (error) {
+        console.error('PDF 处理错误:', error);
+        splitProgress.textContent = '处理PDF时出错，请重试';
     }
-
-    splitProgress.textContent = '拆分完成！';
 }
 
 // 拆分按钮点击事件
@@ -172,7 +175,7 @@ splitButton.addEventListener('click', async () => {
         try {
             await splitPDF(file);
         } catch (error) {
-            splitProgress.textContent = '拆分过程中出现错误，请重试。';
+            splitProgress.textContent = '拆分过程中出现错误，请重试';
         }
         splitButton.disabled = false;
     }
