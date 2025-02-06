@@ -99,8 +99,9 @@ pdfInput.addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (file) {
         try {
-            // 显示加载提示
             pdfInfo.innerHTML = '<p>正在读取PDF文件信息...</p>';
+            splitOptions.style.display = 'none'; // 隐藏拆分选项
+            splitButton.disabled = true; // 禁用拆分按钮
             
             const arrayBuffer = await file.arrayBuffer();
             const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
@@ -113,14 +114,16 @@ pdfInput.addEventListener('change', async function(e) {
                 <p>文件大小：${(file.size / (1024 * 1024)).toFixed(2)} MB</p>
             `;
             
-            // 启用拆分按钮
-            splitButton.disabled = false;
+            // 显示拆分选项
+            splitOptions.style.display = 'block'; // 显示拆分选项
+            splitButton.disabled = false; // 启用拆分按钮
             splitProgress.textContent = '';
             
         } catch (error) {
             console.error('PDF 加载错误:', error);
             pdfInfo.innerHTML = '<p style="color: #f44336;">无法读取PDF文件，请确保文件格式正确</p>';
-            splitButton.disabled = true;
+            splitOptions.style.display = 'none'; // 隐藏拆分选项
+            splitButton.disabled = true; // 禁用拆分按钮
         }
     }
 });
